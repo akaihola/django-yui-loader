@@ -39,19 +39,30 @@ def YUI(parser, token):
         raise template.TemplateSyntaxError, \
               'YUI requires at least the command name as an argument'
     cmd = bits.pop(0)
+
     if cmd == 'loader':
-        if bits:
+        if len(bits) > 2:
             raise template.TemplateSyntaxError, \
-                  'YUI loader takes no arguments'
-        return YUILoaderNode()
+                  'YUI loader takes zero, one or two arguments'
+        return YUILoaderNode(*bits)
+
     elif cmd == 'require':
-        nodelist = parser.parse(('endYUI',))
-        parser.delete_first_token()
-        return YUIRequireNode(bits, nodelist)
+        nodelists_add_module = []
+        nodelist_on_success = parser.parse(('addModule', 'endYUI',))
+        while True:
+            token = parser.next_token()
+            if token.contents == 'addModule':
+                nodelists_add_module.append(
+                    parser.parse(('addModule', 'endYUI',)))
+            else:
+                break
+        return YUIRequireNode(bits, nodelist_on_success, nodelists_add_module)
+
     elif cmd == 'alias':
         aliases = [bit.split('=') for bit in bits]
         return YUIAliasNode((varname, module) for varname, module in aliases)
         # todo: tuple extraction error handling
+
     elif cmd == 'onDOMReady':
         if bits:
             raise template.TemplateSyntaxError, \
@@ -60,40 +71,83 @@ def YUI(parser, token):
         parser.delete_first_token()
         return YUIOnDomReadyNode(nodelist)
 
+
+def init(url):
+    return ''.join((
+        script_src(url),
+        script('_DOMReady_funcs=[];'
+               'function _onDOMReady(f){_DOMReady_funcs.push(f);}')))
+
+ONDOMREADY = ('for(var i=0;i<_DOMReady_funcs.length;++i)'
+              '_DOMReady_funcs[i]();'
+              '_onDOMReady=function(f){f()};')
+
+
 class YUILoaderNode(template.Node):
+
+    def __init__(self, url=None, filter=None):
+        self.url = url and template.Variable(url)
+        self.filter = filter and template.Variable(filter)
+
     def render(self, context):
-        if '_yui_loader_initialized' in context:
-            return ''
-        context['_yui_loader_initialized'] = True
-        return ''.join((
-            script_src(LOADER_URL),
-            script('_DOMReady_funcs=[];'
-                   'function _onDOMReady(f){_DOMReady_funcs.push(f);}'),
-            YUIRequireNode(['dom', 'event', 'selector'], template.TextNode('for(var i=0;i<_DOMReady_funcs.length;++i)_DOMReady_funcs[i]();_onDOMReady=function(f){f()};')).render(context)))
+        config = context_setdefault(context, '_yui', {})
+        if self.filter is None:
+            config['filter'] = None
+        else:
+            config['filter'] = self.filter.resolve(context)
+        if self.url is None:
+            config['source'] = LOADER_URL
+        else:
+            config['source'] = self.url.resolve(context)
+        return YUIRequireNode(['dom']).render(context)
 
 
 class YUIRequireNode(template.Node):
-    def __init__(self, modules, nodelist=None):
+
+    def __init__(self, modules,
+                 nodelist_on_success=None, nodelists_add_module=None):
         self.modules = modules
-        self.nodelist = nodelist
+        self.nodelist_on_success = nodelist_on_success
+        self.nodelists_add_module = nodelists_add_module or ()
+
     def render(self, context):
-        #loaded = context_setdefault(context, '_yui_loaded_modules', set())
-        #modules = [m for m in self.modules if m not in loaded]
-        if self.nodelist is None:
-            success_script = ''
-        else:
-            success_script = self.nodelist.render(context).strip()
-        #if not modules:
-        #    return script(success_script)
-        if success_script:
-            on_success = ',onSuccess:function(){%s}' % success_script
+        result = []
+        success_scripts = []
+        config = context_setdefault(context, '_yui', {})
+
+        if 'initialized' not in config:
+            url = config.setdefault('source', LOADER_URL)
+            result.append(init(url))
+            success_scripts.append(ONDOMREADY)
+            config['initialized'] = True
+        result.append(script('_yui_loader = new YAHOO.util.YUILoader();'))
+
+        if self.nodelist_on_success is not None:
+            success_scripts.append(
+                self.nodelist_on_success.render(context).strip())
+        if success_scripts:
+            on_success = ',onSuccess:function(){%s}' % ''.join(success_scripts)
         else:
             on_success = ''
-        #loaded.update(modules)
-        return script(
-            '_yui_loader = new YAHOO.util.YUILoader();'
-            '_yui_loader.insert({require:[%s]%s});' % (
-            ','.join('"%s"' % m for m in self.modules), on_success))
+
+        if config.get('filter', None):
+            filtr = ',filter:"%s"' % config['filter']
+            if config['filter'].lower() == 'debug':
+                filtr += ',allowRollup:false'
+        else:
+            filtr = ''
+
+        add_module = ''.join(
+            '_yui_loader.addModule(%s);\n' % nodelist.render(context)
+            for nodelist in self.nodelists_add_module)
+
+        result.append(script(
+            '%s_yui_loader.insert({require:[%s]%s%s});' % (
+            add_module,
+            ','.join('"%s"' % m for m in self.modules),
+            filtr,
+            on_success)))
+        return ''.join(result)
 
 
 class YUIAliasNode(template.Node):
