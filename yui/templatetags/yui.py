@@ -99,7 +99,7 @@ class YUILoaderNode(template.Node):
             config['source'] = LOADER_URL
         else:
             config['source'] = self.url.resolve(context)
-        return YUIRequireNode(['dom']).render(context)
+        return YUIRequireNode(['dom', 'event']).render(context)
 
 
 class YUIRequireNode(template.Node):
