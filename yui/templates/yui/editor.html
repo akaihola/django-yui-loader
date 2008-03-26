@@ -1,0 +1,78 @@
+{% load yui %}
+
+{# This is the default template for replacing a textarea with a YUI Editor #}
+{# component.  The options have now some arbitrary defaults, but they will #}
+{# be customizable with the YUI editor template tag.                       #}
+
+{% YUI loader %}
+{% YUI require editor %}
+var contentEditor = new YAHOO.widget.Editor(
+  "{{ yui_editor_textarea_id }}",
+  { width: '100%',
+    dompath: false,
+    animate: false,
+    autoHeight: true,
+    removeLineBreaks: true,
+    handleSubmit: true,
+    markup: 'xhtml',
+    toolbar: {
+      collapse: true,
+      titlebar: 'Edit the content of the page',
+      draggable: false,
+      buttonType: 'advanced',
+      buttons: [
+	{ group: 'parastyle', label: 'Style and Size',
+	  buttons: [
+	    { type: 'select', label: 'Normal', value: 'heading', disabled: true,
+	      menu: [
+		{ text: 'Normal', value: 'none', checked: true },
+		{ text: 'Header 1', value: 'h2' },
+		{ text: 'Header 2', value: 'h3' },
+		{ text: 'Header 3', value: 'h4' },
+		{ text: 'Header 4', value: 'h5' } ] },
+	    { type: 'separator' },
+	    { type: 'push', label: 'Bold CTRL + SHIFT + B', 
+	      value: 'bold' },
+	    { type: 'push', label: 'Italic CTRL + SHIFT + I', 
+	      value: 'italic' },
+	    { type: 'push', label: 'Underline CTRL + SHIFT + U', 
+	      value: 'underline' },
+	    { type: 'spin', label: '13', value: 'fontsize', 
+	      range: [ 9, 75 ], disabled: true },
+	    { type: 'separator' },
+	    { type: 'push', label: 'Remove Formatting', 
+	      value: 'removeformat', disabled: true },
+	    { type: 'push', label: 'Show/Hide Hidden Elements', 
+	      value: 'hiddenelements' } ] },
+	{ type: 'separator' },
+	{ group: 'alignment', label: 'Alignment',
+	  buttons: [
+	    { type: 'push', label: 'Align Left CTRL + SHIFT + [', 
+	      value: 'justifyleft' },
+	    { type: 'push', label: 'Align Center CTRL + SHIFT + |', 
+	      value: 'justifycenter' },
+	    { type: 'push', label: 'Align Right CTRL + SHIFT + ]', 
+	      value: 'justifyright' },
+	    { type: 'push', label: 'Justify', value: 'justifyfull' } ] },
+	{ type: 'separator' },
+	{ group: 'indentlist', label: 'Indenting and Lists',
+	  buttons: [
+	    { type: 'push', label: 'Indent', 
+	      value: 'indent', disabled: true },
+	    { type: 'push', label: 'Outdent', 
+	      value: 'outdent', disabled: true },
+	    { type: 'push', label: 'Create an Unordered List', 
+	      value: 'insertunorderedlist' },
+	    { type: 'push', label: 'Create an Ordered List', 
+	      value: 'insertorderedlist' } ] },
+	{ type: 'separator' },
+	{ group: 'insertitem', label: 'Link',
+	  buttons: [
+	    { type: 'push', label: 'HTML Link CTRL + SHIFT + L', 
+	      value: 'createlink', disabled: true } ] } ] } } );
+contentEditor.render();
+
+// YUI 2.5.1 broken Editor dialog skin fix
+YAHOO.util.Dom.addClass(document.body, 'yui-skin-sam');
+
+{% endYUI %}{# require editor #}

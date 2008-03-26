@@ -2,6 +2,8 @@
 # -*- encoding: utf-8 -*-
 
 from django import template
+from django.template import Context
+from django.template.loader import render_to_string
 
 register = template.Library()
 
@@ -70,6 +72,12 @@ def YUI(parser, token):
         nodelist = parser.parse(('endYUI',))
         parser.delete_first_token()
         return YUIOnDomReadyNode(nodelist)
+
+    elif cmd == 'editor':
+        if len(bits) != 1:
+            raise template.TemplateSyntaxError, \
+                  'YUI editor takes exactly one argument'
+        return YUIEditorNode(bits[0])
 
 
 def init(url):
@@ -170,3 +178,15 @@ class YUIOnDomReadyNode(template.Node):
         self.nodelist = nodelist
     def render(self, context):
         return script('_onDOMReady(%s);') % self.nodelist.render(context)
+
+
+class YUIEditorNode(template.Node):
+    def __init__(self, textarea_id):
+        self.textarea_id = template.Variable(textarea_id)
+
+    def render(self, context):
+        textarea_id = self.textarea_id.resolve(context)
+        return render_to_string(
+            'yui/editor.html',
+            {'yui_editor_textarea_id': textarea_id},
+            Context())
