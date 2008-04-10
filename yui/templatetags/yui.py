@@ -83,12 +83,14 @@ def YUI(parser, token):
 def init(url):
     return ''.join((
         script_src(url),
-        script('_DOMReady_funcs=[];'
-               'function _onDOMReady(f){_DOMReady_funcs.push(f);}')))
+        script('if (typeof(_DOMReady_funcs) == "undefined") {'
+               '  _DOMReady_funcs=[];'
+               '  function _onDOMReady(f){_DOMReady_funcs.push(f);} }')))
 
-ONDOMREADY = ('for(var i=0;i<_DOMReady_funcs.length;++i)'
-              '_DOMReady_funcs[i]();'
-              '_onDOMReady=function(f){f()};')
+ONDOMREADY = ('YAHOO.util.Event.onDOMReady(function() {'
+              '  for(var i=0;i<_DOMReady_funcs.length;++i)'
+              '  _DOMReady_funcs[i]();'
+              '  _onDOMReady=function(f){f()}; });')
 
 
 class YUILoaderNode(template.Node):
@@ -171,12 +173,17 @@ class YUIAliasNode(template.Node):
         return script('_onDOMReady(function(){%s});' %
                       ''.join('%s=%s;' % (varname, module)
                               for varname, module in assignments))
+        #return script('YAHOO.util.Event.onDOMReady(function(){%s});' %
+        #              ''.join('%s=%s;' % (varname, module)
+        #                      for varname, module in assignments))
 
 
 class YUIOnDomReadyNode(template.Node):
     def __init__(self, nodelist):
         self.nodelist = nodelist
     def render(self, context):
+        #return script('YAHOO.util.Event.onDOMReady(%s);') % \
+        #       self.nodelist.render(context)
         return script('_onDOMReady(%s);') % self.nodelist.render(context)
 
 
