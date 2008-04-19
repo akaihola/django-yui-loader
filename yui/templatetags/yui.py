@@ -11,6 +11,13 @@ LOADER_URL = 'http://yui.yahooapis.com/2.5.1/build/' \
              'yuiloader/yuiloader-beta-min.js'
 
 
+def indent(s, n):
+    i = n * ' '
+    return i + s.replace('\n', '\n' + i)
+
+def join_indent(ls, n):
+    return '\n'.join(indent(s, n) for s in ls)
+
 def make_script_tag(script, src):
     if src:
         src_attrib = ' src="%s"' % src
@@ -83,14 +90,20 @@ def YUI(parser, token):
 def init(url):
     return ''.join((
         script_src(url),
-        script('if (typeof(_DOMReady_funcs) == "undefined") {'
-               '  _DOMReady_funcs=[];'
-               '  function _onDOMReady(f){_DOMReady_funcs.push(f);} }')))
+        script('if (typeof(_DOMReady_funcs) == "undefined") {\n'
+               '  _DOMReady_funcs = [];\n'
+               '  function _onDOMReady(f) {\n'
+               '    _DOMReady_funcs.push(f);\n'
+               '  }\n'
+               '}\n')))
 
-ONDOMREADY = ('YAHOO.util.Event.onDOMReady(function() {'
-              '  for(var i=0;i<_DOMReady_funcs.length;++i)'
-              '  _DOMReady_funcs[i]();'
-              '  _onDOMReady=function(f){f()}; });')
+ONDOMREADY = ('YAHOO.util.Event.onDOMReady(\n'
+              '  function() {\n'
+              '    for (var i=0;i<_DOMReady_funcs.length;++i)\n'
+              '      _DOMReady_funcs[i]();\n'
+              '    _onDOMReady = function(f) { f() };\n'
+              '  }\n'
+              ');\n')
 
 
 class YUILoaderNode(template.Node):
@@ -136,25 +149,31 @@ class YUIRequireNode(template.Node):
             success_scripts.append(
                 self.nodelist_on_success.render(context).strip())
         if success_scripts:
-            on_success = ',onSuccess:function(){%s}' % ''.join(success_scripts)
+            on_success = \
+              ',\n' \
+              '  onSuccess: function() {\n' \
+              '%s\n' \
+              '}' % join_indent(success_scripts, 4)
         else:
             on_success = ''
 
         if config.get('filter', None):
-            filtr = ',filter:"%s"' % config['filter']
+            filtr = ',\n  filter: "%s"' % config['filter']
             if config['filter'].lower() == 'debug':
-                filtr += ',allowRollup:false'
+                filtr += ',\n  allowRollup: false'
         else:
             filtr = ''
 
-        add_module = ''.join(
-            '_yui_loader.addModule(%s);\n' % nodelist.render(context)
+        add_module = '\n'.join(
+            '_yui_loader.addModule(%s);' % nodelist.render(context)
             for nodelist in self.nodelists_add_module)
 
         result.append(script(
-            '%s_yui_loader.insert({require:[%s]%s%s});' % (
+            '%s\n'
+            '_yui_loader.insert({\n'
+            '  require: [%s]%s%s});' % (
             add_module,
-            ','.join('"%s"' % m for m in self.modules),
+            ', '.join('"%s"' % m for m in self.modules),
             filtr,
             on_success)))
         return ''.join(result)
@@ -170,8 +189,12 @@ class YUIAliasNode(template.Node):
         if not assignments:
             return ''
         assigned.update(assignments)
-        return script('_onDOMReady(function(){%s});' %
-                      ''.join('%s=%s;' % (varname, module)
+        return script('_onDOMReady(\n'
+                      '  function() {\n'
+                      '    %s\n'
+                      '  }\n'
+                      ');' %
+                      ''.join('%s = %s;' % (varname, module)
                               for varname, module in assignments))
         #return script('YAHOO.util.Event.onDOMReady(function(){%s});' %
         #              ''.join('%s=%s;' % (varname, module)
