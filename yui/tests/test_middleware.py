@@ -2,20 +2,50 @@
 
 __doc__ = r"""
     >>> import sys ; sys.setrecursionlimit(100)
+    >>> from pprint import pprint
     >>> from ambidjangolib.yui.middleware import \
-    ...     COMPONENTS, YUILoader
-    >>> COMPONENTS['yahoo'].requires
-    []
-    >>> COMPONENTS['yahoo'].after
-    ['grids', 'reset-fonts', 'reset-fonts-grids', 'base', 'reset', 'fonts']
-    >>> COMPONENTS['event'].requires
-    ['yahoo']
-    >>> COMPONENTS['yuiloader-dom-event'].after
-    ['grids', 'reset-fonts', 'reset-fonts-grids', 'base', 'reset', 'fonts']
-    >>> COMPONENTS.get_rollups('event')
-    set(['utilities', 'yuiloader-dom-event', 'yahoo-dom-event'])
+    ...     YUILoader
 
     >>> n = YUILoader()
+
+    >>> n._module_info['yahoo'].requires
+    []
+    >>> n._module_info['yahoo'].after
+    ['sam', 'reset-fonts', 'grids', 'reset-fonts-grids', 'base', 'reset', 'fonts']
+    >>> n._module_info['event'].requires
+    ['yahoo']
+    >>> n._module_info['yuiloader-dom-event'].after
+    ['sam', 'reset-fonts', 'grids', 'reset-fonts-grids', 'base', 'reset', 'fonts']
+    >>> n._module_info.get_rollups('event')
+    set(['utilities', 'yuiloader-dom-event', 'yahoo-dom-event'])
+
+    >>> pprint(n.add_module('''{
+    ...     name: 'name', type: 'type', path: 'path', fullpath: 'fullpath',
+    ...     requires: ['req1', 'req2'], after: ['after1', 'after2'],
+    ...     optional: ['opt1', 'opt2'] }'''))
+    {'after': ['after1', 'after2'],
+     'fullpath': 'fullpath',
+     'name': 'name',
+     'optional': ['opt1', 'opt2'],
+     'path': 'path',
+     'requires': ['req1', 'req2'],
+     'type': 'type'}
+
+    >>> n.add_module('[')
+    Traceback (most recent call last):
+    ValueError: '{' expected instead of '['
+
+    >>> n.add_module('{')
+    Traceback (most recent call last):
+    ValueError: 'name' or 'type' or 'path' or 'fullpath' or 'varName' or 'requires' or 'optional' or 'after' expected instead of end of data
+
+    >>> n.add_module('{,')
+    Traceback (most recent call last):
+    ValueError: 'name' or 'type' or 'path' or 'fullpath' or 'varName' or 'requires' or 'optional' or 'after' expected instead of ','
+
+    >>> n.add_module('{name')
+    Traceback (most recent call last):
+    ValueError: ':' expected instead of end of data
 
     >>> def test_sort(*c): return list(n._sort_components(set(c)))
     >>> test_sort('yahoo')
@@ -68,6 +98,16 @@ __doc__ = r"""
     ['fonts', 'grids']
     >>> add(d, 'reset-fonts')
     ['reset-fonts-grids']
+
+    >>> d.add_module("{name:'added',requires:['dom']}")
+    Traceback (most recent call last):
+    ValueError: type missing in "{name:'added',requires:['dom']}"
+
+    >>> pprint(d.add_module("{type:'js',name:'added',requires:['dom']}"))
+    {'name': 'added', 'requires': ['dom'], 'type': 'js'}
+
+    >>> add(d, 'added')
+    ['reset-fonts-grids', 'yahoo', 'dom', 'added']
 """
 
 if __name__ == '__main__':

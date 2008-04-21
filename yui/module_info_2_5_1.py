@@ -192,3 +192,15 @@ MODULE_INFO = {
                 'requires': ['logger'],
                 'skinnable': True,
                 'type': 'js'}}
+
+SKIN = {
+    'defaultSkin': 'sam',
+    'base': 'assets/skins/',
+    'path': 'skin.css',
+    'after': ['reset', 'fonts', 'grids', 'base'],
+    'rollup': 3 }
+
+MODULE_INFO[SKIN['defaultSkin']] = {
+    'type': 'css',
+    'path': SKIN['base'] + SKIN['defaultSkin'] + '/' + SKIN['path'],
+    'after': SKIN['after'] }

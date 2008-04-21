@@ -68,10 +68,11 @@ YUI_INCLUDE_CSS_TAG = '<link rel="stylesheet" type="text/css" href="%s">'
 """
 
 import re
+from shlex import shlex
 
 from django.conf import settings
 
-from module_info_2_5_1 import MODULE_INFO
+from module_info_2_5_1 import MODULE_INFO, SKIN
 from components import Components
 
 
@@ -86,12 +87,11 @@ TAGS = {'js': getattr(settings, 'YUI_INCLUDE_JS_TAG', DEFAULT_JS_TAG),
         'css': getattr(settings, 'YUI_INCLUDE_CSS_TAG', DEFAULT_CSS_TAG)}
 VERSIONS = {'raw': '', '': '', 'min': '-min', 'debug': '-debug'}
 
-COMPONENTS = Components(MODULE_INFO)
-
 
 class YUILoader:
 
     def __init__(self):
+        self._module_info = Components(MODULE_INFO)
         self._components = set()
         self._rolled_up_components = {}
         self._rollup_counters = {}
@@ -111,6 +111,54 @@ class YUILoader:
                 self._components.add(new_component_name)
                 self._roll_up_superseded(new_component_name)
 
+    def add_module(self, module_def):
+        module_data = {}
+        lexer = shlex(module_def, posix=True)
+
+        def expect(*patterns):
+            token = lexer.get_token()
+            if token not in patterns:
+                raise ValueError, '%s expected instead of %s' % \
+                      (' or '.join(repr(s) for s in patterns),
+                       token and repr(token) or 'end of data')
+            return token
+
+        str_attrs = 'name', 'type', 'path', 'fullpath', 'varName'
+        list_attrs = 'requires', 'optional', 'after'
+        state = 'ATTR'
+        expect('{')
+        while state != 'STOP':
+            if state == 'ATTR':
+                token = expect(*str_attrs+list_attrs)
+                expect(':')
+                if token in str_attrs:
+                    module_data[token] = lexer.get_token()
+                    if module_data[token] is None:
+                        raise ValueError, \
+                              'string expected instead of end of data'
+                    state = 'DELIM'
+                elif token in list_attrs:
+                    expect('[')
+                    lst = module_data[token] = []
+                    state = 'LIST'
+            elif state == 'LIST':
+                lst.append(lexer.get_token())
+                if re.search(r'\W', lst[-1]):
+                    raise ValueError, 'invalid component name %r' % token
+                if expect(',', ']') == ']':
+                    state = 'DELIM'
+            elif state == 'DELIM':
+                if expect(',', '}') == '}':
+                    expect(None)
+                    state = 'STOP'
+                else:
+                    state = 'ATTR'
+
+        if 'type' not in module_data:
+            raise ValueError, 'type missing in %r' % module_def
+        self._module_info.add(module_data['name'], module_data)
+        return module_data
+
     def render(self):
         return '\n'.join(self._render_component(component)
                          for component in self._sort_components())
@@ -121,38 +169,41 @@ class YUILoader:
 
     def _get_satisfied_rollup(self, component_name):
         if self._version == '-min':
-            for rollup_name in COMPONENTS.get_rollups(component_name):
+            for rollup_name in self._module_info.get_rollups(component_name):
                 rollup_status = self._rollup_counters.get(rollup_name, set())
-                if len(rollup_status) >= COMPONENTS[rollup_name].rollup:
+                if len(rollup_status) >= self._module_info[rollup_name].rollup:
                     return rollup_name
 
     def _count_in_rollups(self, component_name):
-        for rollup_name in COMPONENTS.get_rollups(component_name):
+        for rollup_name in self._module_info.get_rollups(component_name):
             rolled_up = self._rollup_counters.setdefault(rollup_name, set())
             rolled_up.add(component_name)
-        for superseded in COMPONENTS[component_name].supersedes:
+        for superseded in self._module_info[component_name].supersedes:
             self._count_in_rollups(superseded)
 
     def _roll_up_superseded(self, component_name):
-        for superseded in COMPONENTS[component_name].supersedes:
+        for superseded in self._module_info[component_name].supersedes:
             self._rolled_up_components[superseded] = component_name
             if superseded in self._components:
                 self._components.remove(superseded)
 
     def _add_requirements(self, component_name):
-        for requirement in COMPONENTS[component_name].requires:
+        component = self._module_info[component_name]
+        for requirement in component.requires:
             self.add_component(requirement)
+        if component.skinnable:
+            self.add_component(SKIN['defaultSkin'])
 
     def _render_component(self, component_name):
-        component = COMPONENTS[component_name]
-        path = component.path
+        component = self._module_info[component_name]
+        path = component.fullpath or YUI_BASE + component.path
         if component.type == 'js':
             if self._version != '-min' and path.endswith('-min.js'):
                 path = path[:-7] + self._version + '.js'
         elif component.type == 'css':
             if self._version == '' and path.endswith('-min.css'):
                 path = path[:-8] + '.css'
-        return TAGS[component.type] % (YUI_BASE + path,)
+        return TAGS[component.type] % path
 
     def _sort_components(self, component_names=None):
         if component_names is None:
@@ -161,7 +212,7 @@ class YUILoader:
             comps = component_names
         while comps:
             component_name = comps.pop()
-            component = COMPONENTS[component_name]
+            component = self._module_info[component_name]
             direct_deps = component.requires + component.after
             indirect_deps = [
                 self._rolled_up_components[r] for r in direct_deps
@@ -176,26 +227,37 @@ class YUILoader:
 
 YUI_RE = re.compile(
     r'%s(include|version) +(.*?)%s' % (PREFIX_RE, SUFFIX_RE))
+YUI_ADDMODULE_RE = re.compile(
+    r'(?s)%saddModule\s*(\{\s*.*?\s*})\s*%s' % (PREFIX_RE, SUFFIX_RE))
 YUI_INIT_RE = re.compile(
     '%sinit%s' % (PREFIX_RE, SUFFIX_RE))
 
 class YUIIncludeMiddleware(object):
     def process_response(self, request, response):
         components = set()
-        node = YUILoader()
+        loader = YUILoader()
+
+        def add_module(match):
+            loader.add_module(match.group(1))
+            return ''
+        content = YUI_ADDMODULE_RE.sub(add_module, response.content)
+
         def collect(match):
             cmd, data = match.groups()
             if cmd == 'include':
                 components.update(data.split())
             elif cmd == 'version':
-                node.set_version(data)
+                loader.set_version(data)
             else:
                 return '<!-- UNKNOWN COMMAND YUI_%s -->' % cmd
             return ''
-        content = YUI_RE.sub(collect, response.content)
+        content = YUI_RE.sub(collect, content)
+
         for component in components:
-            node.add_component(component)
-        content = YUI_INIT_RE.sub(node.render(), content, 1)
+            loader.add_component(component)
+
+        content = YUI_INIT_RE.sub(loader.render(), content, 1)
         response.content = YUI_INIT_RE.sub(
             '<!-- WARNING: MULTIPLE YUI_init STATEMENTS -->', content)
+
         return response

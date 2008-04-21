@@ -33,21 +33,24 @@ class ComponentAdapter:
     def rollup(self):
         return self.data.get('rollup', 1)
 
+    @property
+    def skinnable(self):
+        return self.data.get('skinnable', False)
+
+    @property
+    def fullpath(self):
+        return self.data.get('fullpath', None)
+
     def __getattr__(self, attname):
         return self.data[attname]
 
 
 class Components(dict):
     def __init__(self, components_dict):
-        super(Components, self).__init__(components_dict)
+        super(Components, self).__init__()
         self.rollup_mapping = {}
         for component_name, data in components_dict.items():
-            self.rollup_mapping.setdefault(component_name, set())
-            if 'rollup' not in data:
-                continue
-            for rolled_up in data['supersedes']:
-                self.rollup_mapping.setdefault(rolled_up, set()).add(
-                    component_name)
+            self.add(component_name, data)
 
     def __getitem__(self, component_name):
         data = super(Components, self).__getitem__(component_name)
@@ -65,3 +68,12 @@ class Components(dict):
     def get_css_components(self):
         return [name for name, data in self.items()
                 if data['type'] == 'css']
+
+    def add(self, component_name, data):
+        self[component_name] = data
+        self.rollup_mapping.setdefault(component_name, set())
+        if 'rollup' not in data:
+            return
+        for rolled_up in data['supersedes']:
+            self.rollup_mapping.setdefault(rolled_up, set()).add(
+                component_name)
