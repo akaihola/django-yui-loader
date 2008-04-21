@@ -8,8 +8,19 @@ YUI_include -- YUI Loader as Django middleware
 This server-side middleware implements some of the functionality in the Yahoo
 User Interface Loader component.  YUI JavaScript and CSS modules requirements
 can be declared anywhere in the base, inherited or included templates, and the
-resulting <script> and <link rel=stylesheet> tags are inserted at the specified
-position of the resulting page.
+resulting, optimized <script> and <link rel=stylesheet> tags are inserted at
+the specified position of the resulting page.
+
+Requirements may be specified in multiple locations.  This is useful when zero
+or more components are included in the HTML head section, and inherited and/or
+included templates require possibly overlapping sets of YUI components in the
+body across inherited and included templates.  All tags are collected in the
+head section, and duplicate tags are automatically eliminated.
+
+The middleware understands component dependencies and ensures that resources
+are loaded in the right order.  It knows about built-in rollup files that ship
+with YUI.  By automatically using rolled-up files, the number of HTTP requests
+is reduced.
 
 The default syntax looks like HTML comments.  Markup for the insertion point is
 replaced with <script> and <link> tags:
@@ -23,17 +34,6 @@ middleware. Example:
 Non-minified and compressed versions are requested, respectively, by:
 <!-- YUI_version raw -->
 <!-- YUI_version debug -->
-
-``YUI_include`` may be used multiple times, and all output appears at the first
-occurrence.  This is useful when zero or more components are included in the
-HTML head section, and inherited and/or included templates require possibly
-overlapping sets of YUI components in the body.  All tags are collected in the
-head section, and duplicate tags are automatically eliminated.
-
-The middleware understands component dependencies and ensures that resources
-are loaded in the right order.  It knows about built-in rollup files that ship
-with YUI.  By automatically using rolled-up files, the number of HTTP requests
-is reduced.
 
 Example:
 
