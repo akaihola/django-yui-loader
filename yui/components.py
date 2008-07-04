@@ -6,6 +6,10 @@ class ComponentAdapter:
         self.data = data
 
     @property
+    def optional(self):
+        return self.data.get('optional', [])
+
+    @property
     def supersedes(self):
         return self.data.get('supersedes', [])
 

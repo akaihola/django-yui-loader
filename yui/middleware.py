@@ -217,7 +217,9 @@ class YUILoader:
             indirect_deps = [
                 self._rolled_up_components[r] for r in direct_deps
                 if r in self._rolled_up_components]
-            all_deps = set(direct_deps).union(set(indirect_deps))
+            all_deps = set(direct_deps) \
+                       .union(set(indirect_deps)) \
+                       .union(set(component.optional))
             deps_left = comps.intersection(all_deps)
             for r in self._sort_components(deps_left):
                 yield r
@@ -256,8 +258,13 @@ class YUIIncludeMiddleware(object):
         for component in components:
             loader.add_component(component)
 
-        content = YUI_INIT_RE.sub(loader.render(), content, 1)
-        response.content = YUI_INIT_RE.sub(
-            '<!-- WARNING: MULTIPLE YUI_init STATEMENTS -->', content)
+        tags = loader.render()
+        if tags:
+            content, count = YUI_INIT_RE.subn(tags, content, 1)
+            if count != 1:
+                content += ('<p>%d YUI init tags found,'
+                            'at least one expected</p>' % count)
+            response.content = YUI_INIT_RE.sub(
+                '<!-- WARNING: MULTIPLE YUI init STATEMENTS -->', content)
 
         return response
