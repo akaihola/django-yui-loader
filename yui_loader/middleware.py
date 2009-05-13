@@ -72,8 +72,8 @@ from shlex import shlex
 
 from django.conf import settings
 
-from module_info_2_5_1 import MODULE_INFO, SKIN
-from components import Components
+from yui_loader.module_info_2_5_1 import MODULE_INFO, SKIN
+from yui_loader.components import Components
 
 
 DEFAULT_BASE = 'http://yui.yahooapis.com/2.5.1/build/'

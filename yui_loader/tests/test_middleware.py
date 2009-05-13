@@ -3,8 +3,7 @@
 __doc__ = r"""
     >>> import sys ; sys.setrecursionlimit(100)
     >>> from pprint import pprint
-    >>> from ambidjangolib.yui.middleware import \
-    ...     YUILoader
+    >>> from yui_loader.middleware import YUILoader
 
     >>> n = YUILoader()
 

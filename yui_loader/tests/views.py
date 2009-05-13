@@ -1,9 +1,9 @@
-from django.http import HttpResponse
-
-from ambidjangolib.shortcuts import render_rc_response
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 
 def test_yui_include(request):
-    return render_rc_response(
+    return render_to_response(
         'yui/tests/test-yui-include.html',
-        request)
+        {},
+        RequestContext(request))
 
