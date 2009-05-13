@@ -2,8 +2,8 @@ __doc__ = """
 
 YUI_include -- YUI Loader as Django middleware
 
-(c) Antti Kaihola 2008  http://djangopeople.net/akaihola/
-                        akaihol+django@ambitone.com
+(c) Antti Kaihola 2008,2009  http://djangopeople.net/akaihola/
+                             akaihol+django@ambitone.com
 
 This server-side middleware implements some of the functionality in the Yahoo
 User Interface Loader component.  YUI JavaScript and CSS modules requirements
