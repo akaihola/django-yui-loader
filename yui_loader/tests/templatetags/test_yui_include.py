@@ -1,20 +1,25 @@
 #!/usr/bin/python
 
 __doc__ = r"""
-    >>> from ambidjangolib.yui.templatetags.yui_include import \
-    ...     COMPONENTS, YUIIncludeNode
+    >>> from yui_loader.middleware import YUILoader, MODULE_INFO
+
+    >>> n = YUILoader()
+    >>> COMPONENTS = n._module_info
+
     >>> COMPONENTS['yahoo'].requires
     []
+
     >>> COMPONENTS['yahoo'].after
-    ['grids', 'reset-fonts', 'reset-fonts-grids', 'base', 'reset', 'fonts']
+    ['sam', 'reset-fonts', 'grids', 'reset-fonts-grids', 'base', 'reset', 'fonts']
+
     >>> COMPONENTS['event'].requires
     ['yahoo']
-    >>> COMPONENTS['yuiloader-dom-event'].after
-    ['grids', 'reset-fonts', 'reset-fonts-grids', 'base', 'reset', 'fonts']
-    >>> COMPONENTS.get_rollups('event')
-    set(['utilities', 'yuiloader-dom-event', 'yahoo-dom-event'])
 
-    >>> n = YUIIncludeNode()
+    >>> COMPONENTS['yuiloader-dom-event'].after
+    ['sam', 'reset-fonts', 'grids', 'reset-fonts-grids', 'base', 'reset', 'fonts']
+
+    >>> sorted(COMPONENTS.get_rollups('event'))
+    ['utilities', 'yahoo-dom-event', 'yuiloader-dom-event']
 
     >>> def test_sort(*c): return list(n._sort_components(set(c)))
     >>> test_sort('yahoo')
@@ -28,16 +33,19 @@ __doc__ = r"""
     >>> test_sort('yahoo', 'event', 'dom', 'yuiloader')
     ['yahoo', 'dom', 'yuiloader', 'event']
 
-    >>> n.render(None)
-    '<script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/yahoo/yahoo-min.js"></script>'
+    >>> n.render()
+    ''
     >>> list(n._sort_components())
-    ['yahoo']
+    []
     >>> n.add_component('event') ; list(n._sort_components())
     ['yahoo', 'event']
+    >>> print n.render()
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/yahoo/yahoo-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/event/event-min.js"></script>
     >>> n.add_component('dom') ; list(n._sort_components())
     ['yahoo-dom-event']
     >>> n.add_component('get') ; list(n._sort_components())
-    ['yahoo-dom-event', 'get']
+    ['yuiloader-dom-event']
     >>> n.add_component('yuiloader') ; list(n._sort_components())
     ['yuiloader-dom-event']
     >>> n.add_component('reset') ; list(n._sort_components())
@@ -47,9 +55,18 @@ __doc__ = r"""
     >>> n.add_component('fonts') ; list(n._sort_components())
     ['reset-fonts', 'base', 'yuiloader-dom-event']
     >>> n.add_component('grids') ; list(n._sort_components())
-    ['reset-fonts', 'grids', 'base', 'yuiloader-dom-event']
+    ['reset-fonts-grids', 'base', 'yuiloader-dom-event']
+    >>> print n.render()
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts-grids/reset-fonts-grids.css" />
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/base/base-min.css" />
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/yuiloader-dom-event/yuiloader-dom-event.js"></script>
 """
 
 if __name__ == '__main__':
-    from doctest import testmod
-    testmod()
+    import sys, os, doctest
+    from os.path import join, dirname
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+    doctest.testmod()
+

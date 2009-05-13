@@ -107,8 +107,12 @@ __doc__ = r"""
 
     >>> add(d, 'added')
     ['reset-fonts-grids', 'yahoo', 'dom', 'added']
+
 """
 
 if __name__ == '__main__':
-    from doctest import testmod
-    testmod()
+    import sys, os, doctest
+    from os.path import join, dirname
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'yui_loader.tests.settings'
+    doctest.testmod()
