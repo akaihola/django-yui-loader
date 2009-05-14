@@ -47,11 +47,11 @@ Example:
 Renders:
 
 <html><head>
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts/reset-fonts.css" />
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/base/base-min.css" />
-<script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/element/element-beta-min.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/selector/selector-beta-min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts/reset-fonts.css" />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/base/base-min.css" />
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/element/element-beta-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/selector/selector-beta-min.js"></script>
 </head><body>
 </body></html>
 
@@ -72,11 +72,11 @@ from shlex import shlex
 
 from django.conf import settings
 
-from yui_loader.module_info_2_5_1 import MODULE_INFO, SKIN
+from yui_loader.module_info_2_7_0 import MODULE_INFO, SKIN
 from yui_loader.components import Components
 
 
-DEFAULT_BASE = 'http://yui.yahooapis.com/2.5.1/build/'
+DEFAULT_BASE = 'http://yui.yahooapis.com/2.7.0/build/'
 DEFAULT_JS_TAG = '<script type="text/javascript" src="%s"></script>'
 DEFAULT_CSS_TAG = '<link rel="stylesheet" type="text/css" href="%s" />'
 

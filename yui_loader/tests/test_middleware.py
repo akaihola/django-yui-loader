@@ -15,8 +15,8 @@ __doc__ = r"""
     ['yahoo']
     >>> n._module_info['yuiloader-dom-event'].after
     ['sam', 'reset-fonts', 'grids', 'reset-fonts-grids', 'base', 'reset', 'fonts']
-    >>> n._module_info.get_rollups('event')
-    set(['utilities', 'yuiloader-dom-event', 'yahoo-dom-event'])
+    >>> sorted(n._module_info.get_rollups('event'))
+    ['utilities', 'yahoo-dom-event', 'yuiloader-dom-event']
 
     >>> pprint(n.add_module('''{
     ...     name: 'name', type: 'type', path: 'path', fullpath: 'fullpath',
@@ -69,8 +69,8 @@ __doc__ = r"""
     >>> add(n, 'event')
     ['yahoo', 'event']
     >>> print n.render()
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/yahoo/yahoo-min.js"></script>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/event/event-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js"></script>
     >>> add(n, 'dom')
     ['yahoo-dom-event']
     >>> add(n, 'get')

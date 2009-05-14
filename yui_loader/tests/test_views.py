@@ -5,15 +5,15 @@ __doc__ = """
     <html>
     <head>
     <title> test-yui-include.html </title>
-    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/reset/reset-min.css" />
-    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/fonts/fonts-min.css" />
-    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/grids/grids-min.css" />
-    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/base/base-min.css" />
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/yahoo/yahoo-debug.js"></script>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/dom/dom-debug.js"></script>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/selector/selector-beta-debug.js"></script>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/event/event-debug.js"></script>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/element/element-beta-debug.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/reset/reset-min.css" />
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/fonts/fonts-min.css" />
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/grids/grids-min.css" />
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/base/base-min.css" />
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-debug.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/dom/dom-debug.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/selector/selector-debug.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-debug.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/element/element-debug.js"></script>
     <BLANKLINE>
     </head>
     <body>

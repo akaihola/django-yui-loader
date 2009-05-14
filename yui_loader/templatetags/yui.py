@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 
 register = template.Library()
 
-LOADER_URL = 'http://yui.yahooapis.com/2.5.1/build/' \
+LOADER_URL = 'http://yui.yahooapis.com/2.7.0/build/' \
              'yuiloader/yuiloader-beta-min.js'
 
 

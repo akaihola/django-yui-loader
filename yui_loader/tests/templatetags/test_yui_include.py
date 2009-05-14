@@ -40,8 +40,8 @@ __doc__ = r"""
     >>> n.add_component('event') ; list(n._sort_components())
     ['yahoo', 'event']
     >>> print n.render()
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/yahoo/yahoo-min.js"></script>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/event/event-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js"></script>
     >>> n.add_component('dom') ; list(n._sort_components())
     ['yahoo-dom-event']
     >>> n.add_component('get') ; list(n._sort_components())
@@ -57,9 +57,9 @@ __doc__ = r"""
     >>> n.add_component('grids') ; list(n._sort_components())
     ['reset-fonts-grids', 'base', 'yuiloader-dom-event']
     >>> print n.render()
-    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts-grids/reset-fonts-grids.css" />
-    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/base/base-min.css" />
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.1/build/yuiloader-dom-event/yuiloader-dom-event.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css" />
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/base/base-min.css" />
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuiloader-dom-event/yuiloader-dom-event.js"></script>
 """
 
 if __name__ == '__main__':
