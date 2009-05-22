@@ -75,7 +75,7 @@ setup(
     author_email='akaihol+django@ambitone.com',
     maintainer='Antti Kaihola',
     maintainer_email='akaihol+django@ambitone.com',
-    version='0.1',
+    version='0.2',
     url='http://github.com/akaihola/django-yui-loader',
     py_modules=['yui_loader',
                 'yui_loader.middleware',
