@@ -127,8 +127,7 @@ class YUILoader:
         if component.skinnable:
             self.add_component(SKIN['defaultSkin'])
 
-    def _render_component(self, component_name):
-        component = self._module_info[component_name]
+    def _component_path(self, component):
         path = component.fullpath or YUI_BASE + component.path
         if component.type == 'js':
             if self._version != '-min' and path.endswith('-min.js'):
@@ -136,7 +135,11 @@ class YUILoader:
         elif component.type == 'css':
             if self._version == '' and path.endswith('-min.css'):
                 path = path[:-8] + '.css'
-        return TAGS[component.type] % path
+        return path
+
+    def _render_component(self, component_name):
+        component = self._module_info[component_name]
+        return TAGS[component.type] % self._component_path(component)
 
     def _sort_components(self, component_names=None):
         if component_names is None:
