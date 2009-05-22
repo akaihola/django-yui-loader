@@ -132,6 +132,12 @@ use:
     >>> list(g._sort_components())
     ['fonts', 'yahoo', 'dummy']
 
+    >>> h = YUILoader('calendar', 'reset')
+    >>> h.js_urls()
+    ['/js/yui/yahoo-dom-event/yahoo-dom-event.js', '/js/yui/calendar/calendar-min.js']
+    >>> h.css_urls()
+    ['/js/yui/reset/reset-min.css', '/js/yui/assets/skins/sam/skin.css']
+
 """
 
 if __name__ == '__main__':

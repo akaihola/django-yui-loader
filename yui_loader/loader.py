@@ -96,6 +96,19 @@ class YUILoader:
         return '\n'.join(self._render_component(component)
                          for component in self._sort_components())
 
+    def _urls_by_type(self, component_type):
+        sorted_components = (self._module_info[component_name]
+                             for component_name in self._sort_components())
+        return [self._component_path(component)
+                for component in sorted_components
+                if component.type == component_type]
+
+    def js_urls(self):
+        return self._urls_by_type('js')
+
+    def css_urls(self):
+        return self._urls_by_type('css')
+
     def _has_component(self, component_name):
         return component_name in self._components \
                or component_name in self._rolled_up_components
