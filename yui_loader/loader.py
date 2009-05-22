@@ -19,12 +19,16 @@ TAGS = {'js': getattr(settings, 'YUI_INCLUDE_JS_TAG', DEFAULT_JS_TAG),
 
 class YUILoader:
 
-    def __init__(self):
+    def __init__(self, *components, **kwargs):
         self._module_info = Components(MODULE_INFO)
         self._components = set()
         self._rolled_up_components = {}
         self._rollup_counters = {}
-        self.set_version('min')
+        self.set_version(kwargs.pop('version', 'min'))
+        for module in kwargs.pop('add_modules', ()):
+            self.add_module(module)
+        for component in components:
+            self.add_component(component)
 
     def set_version(self, version):
         self._version = VERSIONS[version]

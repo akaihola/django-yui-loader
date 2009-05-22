@@ -109,6 +109,29 @@ __doc__ = r"""
     >>> add(d, 'added')
     ['reset-fonts-grids', 'yahoo', 'dom', 'added']
 
+The loader can be initialized in its constructor for easier direct
+use:
+
+    >>> e = YUILoader('charts')
+    >>> list(e._sort_components())
+    ['yahoo-dom-event', 'element', 'json', 'datasource', 'charts']
+
+    >>> f = YUILoader('colorpicker', version='debug')
+    >>> print f.render()
+    <link rel="stylesheet" type="text/css" href="/js/yui/assets/skins/sam/skin.css" />
+    <script type="text/javascript" src="/js/yui/yahoo/yahoo-debug.js"></script>
+    <script type="text/javascript" src="/js/yui/slider/slider-debug.js"></script>
+    <script type="text/javascript" src="/js/yui/element/element-debug.js"></script>
+    <script type="text/javascript" src="/js/yui/colorpicker/colorpicker-debug.js"></script>
+    <script type="text/javascript" src="/js/yui/dom/dom-debug.js"></script>
+    <script type="text/javascript" src="/js/yui/event/event-debug.js"></script>
+    <script type="text/javascript" src="/js/yui/dragdrop/dragdrop-debug.js"></script>
+
+    >>> g = YUILoader('dummy', add_modules=(
+    ...     "{type:'js',name:'dummy',requires:['fonts']}",))
+    >>> list(g._sort_components())
+    ['fonts', 'yahoo', 'dummy']
+
 """
 
 if __name__ == '__main__':
