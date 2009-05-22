@@ -3,6 +3,7 @@
 __doc__ = r"""
     >>> import sys ; sys.setrecursionlimit(100)
     >>> from pprint import pprint
+    >>> from django.conf import settings
     >>> from yui_loader.middleware import YUILoader
 
     >>> n = YUILoader()
@@ -68,9 +69,9 @@ __doc__ = r"""
     []
     >>> add(n, 'event')
     ['yahoo', 'event']
-    >>> print n.render()
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js"></script>
-    <script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/event/event-min.js"></script>
+    >>> print n.render().replace(settings.YUI_INCLUDE_BASE, 'YUI_INCLUDE_BASE/')
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/yahoo/yahoo-min.js"></script>
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/event/event-min.js"></script>
     >>> add(n, 'dom')
     ['yahoo-dom-event']
     >>> add(n, 'get')
