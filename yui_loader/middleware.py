@@ -81,8 +81,16 @@ YUI_ADDMODULE_RE = re.compile(
 YUI_INIT_RE = re.compile(
     '%sinit%s' % (PREFIX_RE, SUFFIX_RE))
 
+ACCEPTED_CONTENT_TYPES = ('text/html',
+                          'text/xml',
+                          'application/xhtml+xml',
+                          'application/xml')
+
 class YUIIncludeMiddleware(object):
     def process_response(self, request, response):
+        content_type = response['Content-Type'].split(';')[0]
+        if content_type not in ACCEPTED_CONTENT_TYPES:
+            return response
         components = set()
         loader = YUILoader()
 
