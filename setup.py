@@ -10,6 +10,8 @@ License: BSD, see the file LICENSE for details
 See README.rst for documentation
 """
 
+import ez_setup
+ez_setup.use_setuptools()
 from setuptools import setup
 
 setup(
@@ -20,15 +22,10 @@ setup(
     maintainer_email='akaihol+django@ambitone.com',
     version='0.3',
     url='http://github.com/akaihola/django-yui-loader',
-    py_modules=['yui_loader',
-                'yui_loader.middleware',
-                'yui_loader.module_info_2_5_1',
-                'yui_loader.components',
-                'yui_loader.context_processors'],
+    packages=['yui_loader'],
     description=('Server-side middleware which implements some of the '
                  'functionality in the Yahoo User Interface Loader '
                  'component.'),
-    long_description=__doc__,
     classifiers=[
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
