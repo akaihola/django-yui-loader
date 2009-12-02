@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.conf import settings
 
 from yui_loader.middleware import YUIIncludeMiddleware
 
@@ -18,12 +19,13 @@ class MiddlewareTestCase(TestCase):
     def assertProcessesContentType(self, content_type, should_process=True):
         m = YUIIncludeMiddleware()
         original_content = '<!-- YUI_include dom --><!-- YUI_init -->'
+        ctx = {'base': settings.YUI_INCLUDE_BASE}
         if should_process:
             expected_content = (
                 '<script type="text/javascript"'
-                ' src="/js/yui/yahoo/yahoo-min.js"></script>\n'
+                ' src="%(base)syahoo/yahoo-min.js"></script>\n'
                 '<script type="text/javascript"'
-                ' src="/js/yui/dom/dom-min.js"></script>')
+                ' src="%(base)sdom/dom-min.js"></script>' % ctx)
         else:
             expected_content = original_content
         response = ResponseMock(content_type, original_content)
