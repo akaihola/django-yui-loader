@@ -5,6 +5,14 @@ __doc__ = r"""
     >>> from pprint import pprint
     >>> from django.conf import settings
     >>> from yui_loader.middleware import YUILoader
+    >>> from yui_loader.tests.utils import fix_test_urls
+
+We need to make sure we use our own url map in case this is run as
+part of another project's test suite.
+
+    >>> from copy import deepcopy
+    >>> saved_settings = deepcopy(settings)
+    >>> settings.ROOT_URLCONF = 'yui_loader.tests.urls'
 
     >>> n = YUILoader()
 
@@ -69,7 +77,7 @@ __doc__ = r"""
     []
     >>> add(n, 'event')
     ['yahoo', 'event']
-    >>> print n.render().replace(settings.YUI_INCLUDE_BASE, 'YUI_INCLUDE_BASE/')
+    >>> print fix_test_urls(n.render())
     <script type="text/javascript" src="YUI_INCLUDE_BASE/yahoo/yahoo-min.js"></script>
     <script type="text/javascript" src="YUI_INCLUDE_BASE/event/event-min.js"></script>
     >>> add(n, 'dom')
@@ -117,15 +125,15 @@ use:
     ['yahoo-dom-event', 'element', 'json', 'datasource', 'charts']
 
     >>> f = YUILoader('colorpicker', version='debug')
-    >>> print f.render()
-    <link rel="stylesheet" type="text/css" href="/js/yui/assets/skins/sam/skin.css" />
-    <script type="text/javascript" src="/js/yui/yahoo/yahoo-debug.js"></script>
-    <script type="text/javascript" src="/js/yui/slider/slider-debug.js"></script>
-    <script type="text/javascript" src="/js/yui/element/element-debug.js"></script>
-    <script type="text/javascript" src="/js/yui/colorpicker/colorpicker-debug.js"></script>
-    <script type="text/javascript" src="/js/yui/dom/dom-debug.js"></script>
-    <script type="text/javascript" src="/js/yui/event/event-debug.js"></script>
-    <script type="text/javascript" src="/js/yui/dragdrop/dragdrop-debug.js"></script>
+    >>> print fix_test_urls(f.render())
+    <link rel="stylesheet" type="text/css" href="YUI_INCLUDE_BASE/assets/skins/sam/skin.css" />
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/yahoo/yahoo-debug.js"></script>
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/slider/slider-debug.js"></script>
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/element/element-debug.js"></script>
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/colorpicker/colorpicker-debug.js"></script>
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/dom/dom-debug.js"></script>
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/event/event-debug.js"></script>
+    <script type="text/javascript" src="YUI_INCLUDE_BASE/dragdrop/dragdrop-debug.js"></script>
 
     >>> g = YUILoader('dummy', add_modules=(
     ...     "{type:'js',name:'dummy',requires:['fonts']}",))
@@ -133,10 +141,17 @@ use:
     ['fonts', 'yahoo', 'dummy']
 
     >>> h = YUILoader('calendar', 'reset')
-    >>> h.js_urls()
-    ['/js/yui/yahoo-dom-event/yahoo-dom-event.js', '/js/yui/calendar/calendar-min.js']
-    >>> h.css_urls()
-    ['/js/yui/reset/reset-min.css', '/js/yui/assets/skins/sam/skin.css']
+    >>> pprint([fix_test_urls(url) for url in h.js_urls()])
+    ['YUI_INCLUDE_BASE/yahoo-dom-event/yahoo-dom-event.js',
+     'YUI_INCLUDE_BASE/calendar/calendar-min.js']
+    >>> pprint([fix_test_urls(url) for url in h.css_urls()])
+    ['YUI_INCLUDE_BASE/reset/reset-min.css',
+     'YUI_INCLUDE_BASE/assets/skins/sam/skin.css']
+
+Restore changed settings back to original so other tests will run
+correctly.
+
+    >>> settings.ROOT_URLCONF = saved_settings.ROOT_URLCONF
 
 """
 
