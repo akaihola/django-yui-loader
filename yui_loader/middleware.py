@@ -88,9 +88,14 @@ ACCEPTED_CONTENT_TYPES = ('text/html',
 
 class YUIIncludeMiddleware(object):
     def process_response(self, request, response):
+        if getattr(response, 'disable_yui_loader_middleware', False):
+            # TODO: support Django 1.5's  StreamingHttpResponse too
+            return response
+
         content_type = response['Content-Type'].split(';')[0]
         if content_type not in ACCEPTED_CONTENT_TYPES:
             return response
+
         components = set()
         loader = YUILoader()
 
