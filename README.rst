@@ -97,7 +97,7 @@ In some situations,
 you might want to bypass django-yui-loader's response middleware.
 For instance, if you're using a Django version older than 1.5
 but still need to use streaming responses,
-you can set `response.disable_yui_loader_middleware = True`
+you can set ``response.disable_yui_loader_middleware = True``
 to prevent the middleware from modifying the response.
 
 License
