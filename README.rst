@@ -2,7 +2,7 @@
  YUI_include -- YUI Loader as Django middleware
 ================================================
 
-:Copyright: 2008-2009, Antti Kaihola and individual contributors
+:Copyright: 2008-2009,2013, Antti Kaihola and individual contributors
 :Contact:   akaihol+django@ambitone.com
 :License:   BSD, see the file LICENSE for details
 
@@ -89,6 +89,16 @@ e.g.::
 To remove the XHTML trailing slash from the ``<link>`` tag, use::
 
     YUI_INCLUDE_CSS_TAG = '<link rel="stylesheet" type="text/css" href="%s">'
+
+Bypassing the middleware
+========================
+
+In some situations,
+you might want to bypass django-yui-loader's response middleware.
+For instance, if you're using a Django version older than 1.5
+but still need to use streaming responses,
+you can set `response.disable_yui_loader_middleware = True`
+to prevent the middleware from modifying the response.
 
 License
 =======
