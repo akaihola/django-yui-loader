@@ -24,7 +24,7 @@ setup(
     author_email='akaihol+django@ambitone.com',
     maintainer='Antti Kaihola',
     maintainer_email='akaihol+django@ambitone.com',
-    version='0.3.1',
+    version='0.3.2',
     url='http://github.com/akaihola/django-yui-loader',
     packages=['yui_loader'],
     description=('Server-side middleware which implements some of the '
